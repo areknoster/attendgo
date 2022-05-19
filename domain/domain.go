@@ -54,6 +54,23 @@ func (e EventFacePhotoTaken) String() string {
 	return e.Photo.Name
 }
 
+type ID string
+
+type Attendee struct {
+	Photo Photo
+	ID    ID
+}
+
+type AtendeeRegisteredEvent struct {
+	Atendee Attendee
+}
+
+type AtendeeStorage interface {
+	Create(attendee Attendee)
+	Get(id Attendee) Attendee
+	List() []ID
+}
+
 type Event interface {
-	EventIDInput | EventKeyClicked | EventError | EventFacePhotoTaken
+	EventIDInput | EventKeyClicked | EventError | EventFacePhotoTaken | AtendeeRegisteredEvent
 }

@@ -12,4 +12,5 @@ const (
 	ErrNoFace
 	ErrTooManyFaces
 	ErrFacePhotoNotTaken
+	ErrInputDuringPhotoSession
 )
