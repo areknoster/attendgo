@@ -13,23 +13,23 @@ import (
 )
 
 func TestPhotographer(t *testing.T) {
-	errPs := mempubsub.NewPubSub[domain.EventError](mempubsub.Config{BufSize: 10})
-	defer errPs.Close()
-	errAccumulator := &testsubscribers.Accumulator[domain.EventError]{}
-	errPs.Register(errAccumulator)
-	errPs.Register(testsubscribers.Printer[domain.EventError]{})
+	ps := mempubsub.NewPubSub(mempubsub.Config{BufSize: 10})
+	defer ps.Close()
+	errAccumulator := &testsubscribers.Accumulator{}
+	ps.Register(errAccumulator)
+	ps.Register(testsubscribers.Printer{})
 
-	faceAcculator := &testsubscribers.Accumulator[domain.EventFacePhotoTaken]{}
-	facePs := mempubsub.NewPubSub[domain.EventFacePhotoTaken](mempubsub.Config{BufSize: 10})
+	faceAcculator := &testsubscribers.Accumulator{}
+	facePs := mempubsub.NewPubSub(mempubsub.Config{BufSize: 10})
 	defer facePs.Close()
 	facePs.Register(faceAcculator)
-	facePs.Register(testsubscribers.Printer[domain.EventFacePhotoTaken]{})
+	facePs.Register(testsubscribers.Printer{})
 
 	PhotoInterval = time.Millisecond
 	MaxAttempts = 5
 	DetectionCertaintyThreshold = 5.0
 
-	photogrpher, err := NewFacePhotographer(&fakecapturer.Capturer{}, errPs, facePs)
+	photogrpher, err := NewFacePhotographer(&fakecapturer.Capturer{}, ps)
 	require.NoError(t, err)
 	photogrpher.StartCapturing()
 	time.Sleep(time.Second)

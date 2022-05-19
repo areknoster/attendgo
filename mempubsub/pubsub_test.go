@@ -11,7 +11,7 @@ import (
 )
 
 func TestPubSub(t *testing.T) {
-	ps := NewPubSub[domain.EventKeyClicked](Config{BufSize: 3})
+	ps := NewPubSub(Config{BufSize: 3})
 	defer ps.Close()
 
 	sb1 := &testsubscribers.StringsBuilder{}

@@ -12,11 +12,13 @@ func _() {
 	_ = x[ErrNoFace-1]
 	_ = x[ErrTooManyFaces-2]
 	_ = x[ErrFacePhotoNotTaken-3]
+	_ = x[ErrInputDuringPhotoSession-4]
+	_ = x[ErrAttendeeAlreadyExists-5]
 }
 
-const _EventError_name = "ErrPinTooShortErrNoFaceErrTooManyFacesErrFacePhotoNotTaken"
+const _EventError_name = "ErrPinTooShortErrNoFaceErrTooManyFacesErrFacePhotoNotTakenErrInputDuringPhotoSessionErrAttendeeAlreadyExists"
 
-var _EventError_index = [...]uint8{0, 14, 23, 38, 58}
+var _EventError_index = [...]uint8{0, 14, 23, 38, 58, 84, 108}
 
 func (i EventError) String() string {
 	if i >= EventError(len(_EventError_index)-1) {

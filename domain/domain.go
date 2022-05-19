@@ -2,25 +2,27 @@ package domain
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"image"
 )
 
-type Subscriber[E Event] interface {
+type Subscriber interface {
 	// Handle is called in serial manner
-	Handle(ev E)
+	Handle(ev Event)
 }
 
-type SubscriberRegistry[E Event] interface {
-	Register(s Subscriber[E])
+type SubscriberRegistry interface {
+	Register(s Subscriber)
 }
 
-type Publisher[E Event] interface {
-	Publish(ev E)
+type Publisher interface {
+	Publish(ev Event)
 }
 
-type PubSub[E Event] interface {
-	Publisher[E]
-	SubscriberRegistry[E]
+type PubSub interface {
+	Publisher
+	SubscriberRegistry
 }
 
 type Runner interface {
@@ -32,13 +34,17 @@ type EventKeyClicked struct {
 }
 
 func (e EventKeyClicked) String() string {
-	return string(e.Glyph)
+	return fmt.Sprintf("key clicked: %v", string(e.Glyph))
 }
 
-type EventIDInput string
+type ID string
+
+type EventIDInput struct {
+	ID ID
+}
 
 func (e EventIDInput) String() string {
-	return string(e)
+	return fmt.Sprintf("id received: %s", string(e.ID))
 }
 
 type Photo struct {
@@ -51,10 +57,8 @@ type EventFacePhotoTaken struct {
 }
 
 func (e EventFacePhotoTaken) String() string {
-	return e.Photo.Name
+	return fmt.Sprintf("face photo taken: %s", e.Photo.Name)
 }
-
-type ID string
 
 type Attendee struct {
 	Photo Photo
@@ -65,12 +69,19 @@ type AtendeeRegisteredEvent struct {
 	Atendee Attendee
 }
 
+func (e AtendeeRegisteredEvent) String() string {
+	return fmt.Sprintf("attendee registered id: %s photo: %s", e.Atendee.ID, e.Atendee.Photo.Name)
+}
+
 type AtendeeStorage interface {
-	Create(attendee Attendee)
-	Get(id Attendee) Attendee
+	Create(attendee Attendee) error
+	Get(id Attendee) (Attendee, error)
 	List() []ID
 }
 
-type Event interface {
-	EventIDInput | EventKeyClicked | EventError | EventFacePhotoTaken | AtendeeRegisteredEvent
-}
+var (
+	ErrAttendeeDoesntExist         = errors.New("attendee does not exist")
+	ErrStorageAttendeeAlreadyExits = errors.New("attendee already exists")
+)
+
+type Event interface{}

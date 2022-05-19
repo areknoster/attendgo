@@ -5,34 +5,39 @@ import (
 	"strings"
 )
 
-var _ domain.Subscriber[domain.EventKeyClicked] = (*Handler)(nil)
+var _ domain.Subscriber = (*Handler)(nil)
 
 type Handler struct {
-	sb     strings.Builder
-	errPub domain.Publisher[domain.EventError]
-	idPub  domain.Publisher[domain.EventIDInput]
+	sb  strings.Builder
+	pub domain.Publisher
 }
 
-func NewHandler(idPub domain.Publisher[domain.EventIDInput], errPub domain.Publisher[domain.EventError]) *Handler {
+func NewHandler(pub domain.Publisher) *Handler {
 	return &Handler{
-		errPub: errPub,
-		idPub:  idPub,
+		pub: pub,
 	}
 }
 
 const minPinLength = 4
 
-func (s *Handler) Handle(ev domain.EventKeyClicked) {
-	switch ev.Glyph {
-	case '*':
-		if s.sb.Len() < minPinLength {
-			s.errPub.Publish(domain.ErrPinTooShort)
+func (s *Handler) Handle(ev domain.Event) {
+	switch ev := ev.(type) {
+	case domain.EventKeyClicked:
+		switch ev.Glyph {
+		case '*':
+			if s.sb.Len() < minPinLength {
+				s.pub.Publish(domain.ErrPinTooShort)
+				s.sb.Reset()
+				return
+			}
+			s.pub.Publish(domain.EventIDInput{ID: domain.ID(s.sb.String())})
+			s.sb.Reset()
+
+		case '#':
+			s.sb.Reset()
+
+		default:
+			s.sb.WriteRune(ev.Glyph)
 		}
-
-	case '#':
-		s.sb.Reset()
-
-	default:
-		s.sb.WriteRune(ev.Glyph)
 	}
 }

@@ -2,10 +2,11 @@ package testsubscribers
 
 import (
 	"fmt"
+	"github.com/areknoster/attendgo/domain"
 )
 
-type Printer[T fmt.Stringer] struct{}
+type Printer struct{}
 
-func (p Printer[T]) Handle(ev T) {
-	fmt.Println(ev.String())
+func (p Printer) Handle(ev domain.Event) {
+	fmt.Println(ev)
 }

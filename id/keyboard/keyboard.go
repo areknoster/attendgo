@@ -8,10 +8,10 @@ import (
 )
 
 type Listener struct {
-	pub domain.Publisher[domain.EventKeyClicked]
+	pub domain.Publisher
 }
 
-func NewListener(pub domain.Publisher[domain.EventKeyClicked]) *Listener {
+func NewListener(pub domain.Publisher) *Listener {
 	return &Listener{pub: pub}
 }
 

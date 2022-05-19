@@ -13,4 +13,5 @@ const (
 	ErrTooManyFaces
 	ErrFacePhotoNotTaken
 	ErrInputDuringPhotoSession
+	ErrAttendeeAlreadyExists
 )

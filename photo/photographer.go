@@ -20,11 +20,10 @@ var faceFinderClassifier []byte
 type FacePhotographer struct {
 	pigo     *pigo.Pigo
 	capturer Capturer
-	errPub   domain.Publisher[domain.EventError]
-	photoPub domain.Publisher[domain.EventFacePhotoTaken]
+	pub      domain.Publisher
 }
 
-func NewFacePhotographer(capturer Capturer, errPub domain.Publisher[domain.EventError], photoPub domain.Publisher[domain.EventFacePhotoTaken]) (*FacePhotographer, error) {
+func NewFacePhotographer(capturer Capturer, pub domain.Publisher) (*FacePhotographer, error) {
 	pg := pigo.NewPigo()
 	pg, err := pg.Unpack(faceFinderClassifier)
 	if err != nil {
@@ -33,8 +32,7 @@ func NewFacePhotographer(capturer Capturer, errPub domain.Publisher[domain.Event
 	return &FacePhotographer{
 		pigo:     pg,
 		capturer: capturer,
-		errPub:   errPub,
-		photoPub: photoPub,
+		pub:      pub,
 	}, nil
 
 }
@@ -49,20 +47,19 @@ var (
 func (fp *FacePhotographer) StartCapturing() {
 	for i := 0; i < MaxAttempts; i++ {
 		photo := fp.capturer.Capture()
-		fmt.Println(photo.Name)
 		switch fp.facesNumber(photo.Img) {
 		case 0:
-			fp.errPub.Publish(domain.ErrNoFace)
+			fp.pub.Publish(domain.ErrNoFace)
 		case 1:
 
-			fp.photoPub.Publish(domain.EventFacePhotoTaken{Photo: photo})
+			fp.pub.Publish(domain.EventFacePhotoTaken{Photo: photo})
 			return
 		default:
-			fp.errPub.Publish(domain.ErrTooManyFaces)
+			fp.pub.Publish(domain.ErrTooManyFaces)
 		}
 		time.Sleep(PhotoInterval)
 	}
-	fp.errPub.Publish(domain.ErrFacePhotoNotTaken)
+	fp.pub.Publish(domain.ErrFacePhotoNotTaken)
 }
 
 func (fp *FacePhotographer) facesNumber(img image.Image) int {

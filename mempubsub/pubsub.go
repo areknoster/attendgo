@@ -8,25 +8,25 @@ type Config struct {
 	BufSize uint
 }
 
-type PubSub[E domain.Event] struct {
+type PubSub struct {
 	cfg  Config
-	subs []chan E
+	subs []chan domain.Event
 }
 
-func NewPubSub[E domain.Event](cfg Config) *PubSub[E] {
-	return &PubSub[E]{
+func NewPubSub(cfg Config) *PubSub {
+	return &PubSub{
 		cfg: cfg,
 	}
 }
 
-func (ps *PubSub[E]) Publish(ev E) {
+func (ps *PubSub) Publish(ev domain.Event) {
 	for _, sub := range ps.subs {
 		sub <- ev
 	}
 }
 
-func (ps *PubSub[E]) Register(s domain.Subscriber[E]) {
-	queue := make(chan E, ps.cfg.BufSize)
+func (ps *PubSub) Register(s domain.Subscriber) {
+	queue := make(chan domain.Event, ps.cfg.BufSize)
 	ps.subs = append(ps.subs, queue)
 	go func() {
 		for ev := range queue {
@@ -35,7 +35,7 @@ func (ps *PubSub[E]) Register(s domain.Subscriber[E]) {
 	}()
 }
 
-func (ps *PubSub[E]) Close() {
+func (ps *PubSub) Close() {
 	for _, queue := range ps.subs {
 		close(queue)
 	}
