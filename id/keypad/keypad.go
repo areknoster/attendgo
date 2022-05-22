@@ -1,11 +1,12 @@
-package kaypad
+package keypad
 
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/areknoster/attendgo/domain"
 	"github.com/areknoster/attendgo/signals"
-	"time"
 )
 
 type (
@@ -14,11 +15,11 @@ type (
 )
 
 type Config struct {
-	waitForSignal     time.Duration
-	sweepInteval      time.Duration
-	waitBetweenInputs time.Duration
-	rows              Rows
-	columns           Columns
+	WaitForSignal     time.Duration
+	SweepInteval      time.Duration
+	WaitBetweenInputs time.Duration
+	Rows              Rows
+	Columns           Columns
 }
 
 func NewKeypad(pub domain.Publisher, config Config) *Keypad {
@@ -39,23 +40,23 @@ func (k *Keypad) Run(ctx context.Context) error {
 		select {
 		case <-ctx.Done():
 			return fmt.Errorf("keypad context cancelled: %w", ctx.Err())
-		case <-time.After(k.config.sweepInteval):
+		case <-time.After(k.config.SweepInteval):
 			glyph, ok := k.sweep()
 			if !ok {
 				continue
 			}
 			k.pub.Publish(domain.EventKeyClicked{Glyph: glyph})
-			time.Sleep(k.config.waitBetweenInputs)
+			time.Sleep(k.config.WaitBetweenInputs)
 		}
 
 	}
 }
 
 func (k *Keypad) sweep() (glyph rune, ok bool) {
-	for col, out := range k.config.columns {
+	for col, out := range k.config.Columns {
 		out.Set(true)
-		time.Sleep(k.config.waitForSignal)
-		for row, in := range k.config.rows {
+		time.Sleep(k.config.WaitForSignal)
+		for row, in := range k.config.Rows {
 			if in.Value() {
 				out.Set(false)
 				return keysMapping[input{row, col}], true

@@ -1,4 +1,4 @@
-package kaypad
+package keypad
 
 type input struct {
 	row, column int

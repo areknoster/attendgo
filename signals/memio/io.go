@@ -6,7 +6,7 @@ type MemIO struct {
 	v *uint32
 }
 
-func newMemIO() *MemIO {
+func NewMemIO() *MemIO {
 	var v = uint32(0)
 	return &MemIO{
 		v: &v,
