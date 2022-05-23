@@ -35,7 +35,7 @@ func main() {
 	kp, closer := GPIO(ps)
 	defer closer.Close()
 
-	storage := memstorage.New()
+	attendeeStorage := memstorage.NewAtendeeStorage()
 	decoder, err := linuxcapturer.NewYUYVDecoder()
 	if err != nil {
 		log.Fatal("get YUYV decoder: ", err)
@@ -48,7 +48,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	theNotary := notary.New(ps, storage, photographer)
+	theNotary := notary.New(ps, attendeeStorage, photographer)
 	ps.Register(theNotary)
 
 	ps.Register(testsubscribers.PhotoSaver{Dir: "."})
@@ -78,7 +78,7 @@ func GPIO(ps domain.Publisher) (*keypad.Keypad, closer) {
 			memio.NewMemIO(),
 		},
 	}
-	return keypad.NewKeypad(ps, cnf), cl
+	return keypad.New(ps, cnf), cl
 }
 
 type closer []interface{ Close() }

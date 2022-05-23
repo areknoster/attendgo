@@ -3,19 +3,20 @@ package keyboard
 import (
 	"context"
 	"fmt"
+
 	"github.com/areknoster/attendgo/domain"
 	"github.com/eiannone/keyboard"
 )
 
-type Listener struct {
+type Keyboard struct {
 	pub domain.Publisher
 }
 
-func NewListener(pub domain.Publisher) *Listener {
-	return &Listener{pub: pub}
+func New(pub domain.Publisher) *Keyboard {
+	return &Keyboard{pub: pub}
 }
 
-func (l *Listener) Run(ctx context.Context) error {
+func (l *Keyboard) Run(ctx context.Context) error {
 	err := keyboard.Open()
 
 	if err != nil {
@@ -40,5 +41,4 @@ func (l *Listener) Run(ctx context.Context) error {
 			l.pub.Publish(domain.EventKeyClicked{Glyph: key.Rune})
 		}
 	}
-	return nil
 }

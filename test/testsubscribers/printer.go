@@ -1,12 +1,13 @@
 package testsubscribers
 
 import (
-	"fmt"
+	"log"
+
 	"github.com/areknoster/attendgo/domain"
 )
 
 type Printer struct{}
 
 func (p Printer) Handle(ev domain.Event) {
-	fmt.Println(ev)
+	log.Println(ev)
 }

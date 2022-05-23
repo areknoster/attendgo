@@ -51,7 +51,6 @@ func (fp *FacePhotographer) StartCapturing() {
 		case 0:
 			fp.pub.Publish(domain.ErrNoFace)
 		case 1:
-
 			fp.pub.Publish(domain.EventFacePhotoTaken{Photo: photo})
 			return
 		default:

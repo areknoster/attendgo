@@ -22,7 +22,7 @@ type Config struct {
 	Columns           Columns
 }
 
-func NewKeypad(pub domain.Publisher, config Config) *Keypad {
+func New(pub domain.Publisher, config Config) *Keypad {
 	return &Keypad{
 		pub:    pub,
 		config: config,

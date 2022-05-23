@@ -2,9 +2,10 @@ package notary
 
 import (
 	"errors"
-	"github.com/areknoster/attendgo/domain"
 	"log"
 	"sync/atomic"
+
+	"github.com/areknoster/attendgo/domain"
 )
 
 type state uint32
@@ -48,9 +49,9 @@ func (n *Notary) Handle(ev domain.Event) {
 		if n.getState() != stateTakingPhotos {
 			log.Fatal("EventFacePhotoTaken received in wrong state ")
 		}
-		n.attendee.Photo = ev.Photo
+		n.attendee.PhotoRef = ev.Photo.Ref
 		err := n.storage.Create(n.attendee)
-		if errors.Is(err, domain.ErrStorageAttendeeAlreadyExits) {
+		if errors.Is(err, domain.ErrStorageAlreadyExits) {
 			n.pub.Publish(domain.ErrAttendeeAlreadyExists)
 			return
 		}

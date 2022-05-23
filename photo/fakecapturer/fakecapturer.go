@@ -3,10 +3,12 @@ package fakecapturer
 import (
 	"bytes"
 	"embed"
-	"github.com/areknoster/attendgo/domain"
-	"github.com/areknoster/attendgo/photo"
 	"image/jpeg"
 	"path"
+	"time"
+
+	"github.com/areknoster/attendgo/domain"
+	"github.com/areknoster/attendgo/photo"
 )
 
 //go:embed photos
@@ -36,7 +38,8 @@ func init() {
 		}
 		photos = append(photos, domain.Photo{
 			Img:  img,
-			Name: e.Name(),
+			Date: time.Now(),
+			Ref:  domain.NewPhotoRef(),
 		})
 	}
 }

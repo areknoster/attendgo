@@ -36,10 +36,6 @@ func Open(format webcam.PixelFormat, decoder Decoder) (*Capturer, error) {
 	if gotFormat != format {
 		return nil, fmt.Errorf("did not correctly set format, got %x instead", gotFormat)
 	}
-	err = cam.StartStreaming()
-	if err != nil {
-		log.Panic("start streaming: ", err)
-	}
 
 	return &Capturer{
 		cam:     cam,
@@ -58,7 +54,13 @@ type Capturer struct {
 }
 
 func (c *Capturer) Capture() domain.Photo {
-	err := c.cam.WaitForFrame(uint32(time.Second))
+	err := c.cam.StartStreaming()
+	if err != nil {
+		log.Panic("start streaming: ", err)
+	}
+	defer c.cam.StopStreaming()
+
+	err = c.cam.WaitForFrame(uint32(time.Second))
 	if err != nil {
 		log.Panic("wait for frame: ", err)
 	}
@@ -72,13 +74,13 @@ func (c *Capturer) Capture() domain.Photo {
 		log.Panic("decode frame: ", err)
 	}
 	defer close()
-
 	return domain.Photo{
 		Img:  img,
-		Name: time.Now().Format(time.RFC3339) + ".jpg",
+		Date: time.Now(),
+		Ref:  domain.NewPhotoRef(),
 	}
 }
 
 func (c *Capturer) Close() error {
-	return c.Close()
+	return c.cam.Close()
 }
